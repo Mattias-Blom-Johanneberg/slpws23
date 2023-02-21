@@ -1,0 +1,4 @@
+form action="/watches/#{result['watch_id']}/update" method="POST" 
+    input type="text" name="watch_name" value="#{result['watch_name']}"
+    input type="hidden" name="brand_id" value="#{result['brand_id']}"
+    input type="submit" value="Edit"

@@ -7,6 +7,10 @@ get('/')  do
     slim(:start)
 end 
 
+get('/watches/favourites') do
+    slim(:"watches/favourites")
+end
+
 get('/watches') do
     db = SQLite3::Database.new("db/watch_database.db")
     db.results_as_hash = true
@@ -26,14 +30,39 @@ post('/watches/new') do
     movement = params[:movement]
     watch_id = params[:watch_id].to_i
     db = SQLite3::Database.new("db/watch_database.db")
-    brand_id = db.execute("SELECT brand_id FROM watch_brands WHERE brand_name = ?", id).first
-    db.execute("INSERT INTO watches (watch_name, brand_name, brand_id, content, movement, watch_id) VALUES (?,?,?,?,?,?)", watch_name, brand_name, brand_id, content, movement, watch_id)
+    brand_id = db.execute("SELECT brand_id FROM watch_brands WHERE brand_name = ?", brand_name).first
+    db.execute("INSERT INTO watches (watch_name, brand_name, brand_id, content, movement) VALUES (?,?,?,?,?)", watch_name, brand_name, brand_id, content, movement)
+    redirect(:watches)
+end
+
+post('/watches/:id/delete') do
+    id = params[:id].to_i
+    db = SQLite3::Database.new("db/watch_database.db")
+    db.execute("DELETE FROM watches WHERE watch_id = ?", id)
+    redirect('/watches')
+end  
+
+post('/watches/:id/update') do
+    id = params[:id].to_i
+    watch_name = params[:watch_name]
+    brand_id = params[:brand_id].to_i
+    db = SQLite3::Database.new("db/watch_database.db")
+    db.execute("UPDATE watches SET watch_name = ?, brand_id = ? WHERE watch_id = ?", watch_name, brand_id, id)
+    redirect('/watches')
+end
+
+get('/watches/:id/edit') do
+    id = params[:id].to_i
+    db = SQLite3::Database.new("db/watch_database.db")
+    db.results_as_hash = true
+    result = db.execute("SELECT * FROM watches WHERE watch_id =?", id).first
+    slim(:"/watches/edit", locals:{result:result})
 end
 
 get('/watches/:id') do
     id = params[:id].to_i
     db = SQLite3::Database.new("db/watch_database.db")
     db.results_as_hash = true
-    result = db.execute("SELECT * FROM watches WHERE watch_id = ?",id).first
-    slim(:"watches/show",locals:{result:result})
+    result = db.execute("SELECT * FROM watches WHERE watch_id = ?", id).first
+    slim(:"watches/show", locals:{result:result})
   end
