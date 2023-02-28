@@ -30,6 +30,10 @@ a, form {
     margin:10px;
 }
 
+ol {
+    margin: 5px;
+}
+
 li {
     display: flex;
     justify-content: space-between;

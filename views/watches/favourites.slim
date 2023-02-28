@@ -1,1 +1,6 @@
 h2 Dina Favoriter! 
+
+ol
+  - favourites.each do |watch|
+    li 
+      a href="watches/#{watch['watch_id']}" #{watch["watch_name"]}
