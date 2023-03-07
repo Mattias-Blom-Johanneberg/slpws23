@@ -40,7 +40,7 @@ get('/watches/favourites') do
     user_id = session[:id].to_i
     db = SQLite3::Database.new('db/watch_database.db')
     db.results_as_hash = true
-    result = db.execute("SELECT *, watch_name FROM user_favourites JOIN watches ON user_favourites.watch_id = watches.watch_id WHERE user_id = ?", user_id)
+    result = db.execute("SELECT * FROM user_favourites JOIN watches ON user_favourites.watch_id = watches.watch_id WHERE user_id = ?", user_id)
     slim(:"/watches/favourites", locals:{favourites:result})
 end
 
