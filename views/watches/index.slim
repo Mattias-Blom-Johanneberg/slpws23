@@ -6,5 +6,6 @@ ol
       a href="watches/#{watch['watch_id']}" #{watch["watch_name"]}
       a href="watches/#{watch['watch_id']}/edit" Edit
       a href="watches/#{watch['watch_id']}/like" Like
+      a href="watches/#{watch['watch_id']}/dislike" Dislike
       form action="watches/#{watch['watch_id']}/delete" method="POST" 
         input type="submit" value="Delete"

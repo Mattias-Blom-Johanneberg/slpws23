@@ -29,7 +29,6 @@ post('/login') do
 
     if BCrypt::Password.new(pwdigest) == password
         session[:id] = user_id
-        p session[:id]
         redirect('/watches/favourites')
     else
         "Fel lösenord!"
@@ -63,8 +62,7 @@ get('/watches') do
     db = SQLite3::Database.new('db/watch_database.db')
     db.results_as_hash = true
     result = db.execute("SELECT watch_id, watch_name FROM watches")
-    p result
-    slim(:"/watches/index",locals:{watches:result})
+    slim(:"/watches/index", locals:{watches:result})
 end
 
 get('/watches/new') do
@@ -134,7 +132,25 @@ get('/watches/:id/like') do
         # db.execute("INSERT INTO user_favourites (user_id, watch_id) VALUES (?,?)", user_id, watch_id)
     # end
     
-    db.execute("INSERT INTO user_favourites (user_id, watch_id) VALUES (?,?)", user_id, watch_id)
+    db.execute("INSERT INTO user_favourites (user_id, watch_id) VALUES (?,?) WHERE NOT EXISTS (SELECT * FROM user_favourites WHERE user_id = ? AND watch_id = ?)", user_id, watch_id)
+    redirect('/watches/favourites')
+end
+
+get('/watches/:id/dislike') do
+    watch_id = params[:id].to_i
+    user_id = session[:id]
+    db = SQLite3::Database.new("db/watch_database.db")
+    db.results_as_hash = true
+    db.execute("DELETE FROM user_favourites WHERE user_id = ? AND watch_id = ?", user_id, watch_id)
+    redirect('/watches')
+end
+
+get('/watches/favourites/:id/dislike') do
+    watch_id = params[:id].to_i
+    user_id = session[:id]
+    db = SQLite3::Database.new("db/watch_database.db")
+    db.results_as_hash = true
+    db.execute("DELETE FROM user_favourites WHERE user_id = ? AND watch_id = ?", user_id, watch_id)
     redirect('/watches/favourites')
 end
 
