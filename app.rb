@@ -6,6 +6,17 @@ require 'bcrypt'
 
 enable :sessions
 
+def already_liked?(watch_id, result)
+    i = 0
+    while i < result.length
+        if watch_id == result[i][0]
+            return true
+        end
+    i += 1
+    end
+    return false
+end
+
 get('/')  do
     slim(:start)
 end 
@@ -39,7 +50,7 @@ get('/watches/favourites') do
     user_id = session[:id].to_i
     db = SQLite3::Database.new('db/watch_database.db')
     db.results_as_hash = true
-    result = db.execute("SELECT * FROM user_favourites JOIN watches ON user_favourites.watch_id = watches.watch_id WHERE user_id = ?", user_id)
+    result = db.execute("SELECT * FROM user_favourites JOIN watches ON user_favourites.watch_id = watches.watch_id WHERE user_id = ?", user_id) 
     slim(:"/watches/favourites", locals:{favourites:result})
 end
 
@@ -112,27 +123,21 @@ get('/watches/:id/like') do
     db.results_as_hash = true
     result = db.execute("SELECT watch_id FROM user_favourites WHERE user_id = ?", user_id)
     
-    # i = 0
-    # already_liked = false
-    # p result.length
-    # while (already_liked == false) & (i < result.length)
-    #     puts result[i].to_i
-    #     p i
-    #     if result[i] == watch_id
-    #         already_liked = true
-    #     else
-    #         already_liked = false
-    #     end
-    #     i += 1
-    # end
-    # p already_liked
-    # if already_liked == true
-    #     "Du har redan gillat denna klockan!"
-    # else
-        # db.execute("INSERT INTO user_favourites (user_id, watch_id) VALUES (?,?)", user_id, watch_id)
-    # end
-    
-    db.execute("INSERT INTO user_favourites (user_id, watch_id) VALUES (?,?) WHERE NOT EXISTS (SELECT * FROM user_favourites WHERE user_id = ? AND watch_id = ?)", user_id, watch_id)
+    i = 0
+    already_liked = true
+    while already_liked == true && i < result.length
+        if already_liked?(watch_id, result)
+            return "Du har redan gillat denna klockan!"
+        else
+            already_liked = false
+        end
+        i += 1
+    end
+
+    if already_liked == false
+        db.execute("INSERT INTO user_favourites (user_id, watch_id) VALUES (?,?)", user_id, watch_id)
+    end
+
     redirect('/watches/favourites')
 end
 
