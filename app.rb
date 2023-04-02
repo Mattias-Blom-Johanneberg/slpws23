@@ -3,6 +3,7 @@ require 'sinatra/reloader'
 require 'slim'
 require 'sqlite3'
 require 'bcrypt'
+require_relative './model.rb'
 
 enable :sessions
 
@@ -32,33 +33,14 @@ end
 post('/login') do
     username = params[:username]
     password = params[:password]
-    db = SQLite3::Database.new('db/watch_database.db')
-    db.results_as_hash = true
-    result = db.execute("SELECT * FROM users WHERE username = ?", username).first
-    pwdigest = result["pwdigest"]
-    user_id = result["user_id"]
-
-    if BCrypt::Password.new(pwdigest) == password
-        session[:id] = user_id
-        redirect('/watches/favourites')
-    else
-        "Fel lösenord!"
-    end
-end
-
-get('/watches/favourites') do
-    user_id = session[:id].to_i
-    db = SQLite3::Database.new('db/watch_database.db')
-    db.results_as_hash = true
-    result = db.execute("SELECT * FROM user_favourites JOIN watches ON user_favourites.watch_id = watches.watch_id WHERE user_id = ?", user_id) 
-    slim(:"/watches/favourites", locals:{favourites:result})
+    user_login(username, password)
 end
 
 post('/users/new') do
     username = params[:username]
     password = params[:password]
     password_confirm = params[:password_confirm]
-
+    
     if (password == password_confirm)
         password_digest = BCrypt::Password.create(password)
         db = SQLite3::Database.new('db/watch_database.db')
@@ -67,6 +49,8 @@ post('/users/new') do
     else 
         "Lösenordet matchade inte!"
     end
+
+    # register_user(username, password, password_confirm)
 end
 
 get('/watches') do
@@ -74,6 +58,18 @@ get('/watches') do
     db.results_as_hash = true
     result = db.execute("SELECT watch_id, watch_name FROM watches")
     slim(:"/watches/index", locals:{watches:result})
+
+    # show_watches()
+end
+
+get('/watches/favourites') do
+    user_id = session[:id].to_i
+    db = SQLite3::Database.new('db/watch_database.db')
+    db.results_as_hash = true
+    result = db.execute("SELECT * FROM user_favourites JOIN watches ON user_favourites.watch_id = watches.watch_id WHERE user_id = ?", user_id) 
+    slim(:"/watches/favourites", locals:{favourites:result})
+
+    # show_favourite_watches(user_id)
 end
 
 get('/watches/new') do
