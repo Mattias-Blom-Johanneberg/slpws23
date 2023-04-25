@@ -7,12 +7,39 @@ require_relative './model.rb'
 
 enable :sessions
 
+before('/watches/*') do
+    if session[:id] == nil
+        redirect('/error')
+    end
+end
+
+get('/error') do
+    slim(:guest_message)
+end
+
 get('/')  do
-    slim(:start)
+    db = SQLite3::Database.new('db/watch_database.db')
+    db.results_as_hash = true
+    
+    if (user_id = session[:id]) == nil
+        slim(:start)
+    else
+        result = db.execute("SELECT username FROM users WHERE user_id = ?", user_id)
+        slim(:user_start, locals:{user:result})
+    end
 end 
 
 get('/login') do
-    slim(:login)
+    if session[:id] != nil
+        slim(:logout)
+    else
+        slim(:login)
+    end
+end
+
+get('/logout') do
+    session.destroy
+    redirect('/')
 end
 
 get('/register') do
@@ -20,11 +47,11 @@ get('/register') do
 end
 
 post('/login') do
-    username = params[:username]
+    @username = params[:username]
     password = params[:password]
     
     if user_login(username, password)
-        redirect('/watches/favourites')
+        redirect('/')
     else
         "Fel lösenord!"
     end
@@ -42,19 +69,19 @@ post('/users/new') do
     end
 end
 
-get('/watches') do
+get('/watches/show') do
     result = show_watches()
     slim(:"/watches/index", locals:{watches:result})
 end
 
 get('/watches/favourites') do
-    user_id = session[:id].to_i
+    user_id = session[:id]
     result = show_favourite_watches(user_id)
     slim(:"/watches/favourites", locals:{favourites:result})
 end
 
 get('/watches/new') do
-    slim(:"/watches/new")
+        slim(:"/watches/new")
 end
 
 post('/watches/new') do
@@ -64,13 +91,13 @@ post('/watches/new') do
     movement = params[:movement]
     watch_id = params[:watch_id].to_i
     register_new_watch(watch_name, brand_name, content, movement, watch_id)
-    redirect('/watches')
+    redirect('/watches/show')
 end
 
 post('/watches/:id/delete') do
     id = params[:id].to_i
     delete_a_watch(id)
-    redirect('/watches')
+    redirect('/watche/show')
 end  
 
 post('/watches/:id/update') do
@@ -78,13 +105,13 @@ post('/watches/:id/update') do
     watch_name = params[:watch_name]
     brand_id = params[:brand_id].to_i
     update_a_watch(id, watch_name, brand_id)
-    redirect('/watches')
+    redirect('/watches/show')
 end
 
 get('/watches/:id/edit') do
     id = params[:id].to_i
     edit_a_watch(id)
-    slim(:"/watches/edit", locals:{result:result})
+    redirect('/watches/:id/update')
 end
 
 get('/watches/:id/like') do
