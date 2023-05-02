@@ -1,8 +1,8 @@
 form action="/watches/new" method="post" 
-    input type="text" name="watch_name" placeholder="Namn på klockan"
-    input type="text" name="brand_name" placeholder="Tillverkare"
-    input type="text" name="content" placeholder="Info om klockan"
-    input type="text" list="movement" name="movement" placeholder="Klockans movement"
+    <input type="text" name="watch_name" placeholder="Namn på klockan" required>
+    <input type="text" name="brand_name" placeholder="Tillverkare" required>
+    <input type="text" name="content" placeholder="Info om klockan" required>
+    <input type="text" list="movement" name="movement" placeholder="Klockans movement" required>
     input type="submit" value="Lägg till klocka"
     datalist id="movement"
         option value="Automatic"

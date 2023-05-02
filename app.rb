@@ -9,12 +9,18 @@ enable :sessions
 
 before('/watches/*') do
     if session[:id] == nil
+        session[:error] = "Du behöver logga in för att se denna sidan"
         redirect('/error')
     end
 end
 
+before('/watches/show') do
+    @admin_check = (session[:id] == 1? true : false)
+end
+
 get('/error') do
-    slim(:guest_message)
+    error = session[:error]
+    slim(:error, locals:{error:error})
 end
 
 get('/')  do
@@ -47,7 +53,8 @@ get('/register') do
 end
 
 post('/login') do
-    @username = params[:username]
+    cooldown()
+    username = params[:username]
     password = params[:password]
     
     if user_login(username, password)
@@ -71,7 +78,7 @@ end
 
 get('/watches/show') do
     result = show_watches()
-    slim(:"/watches/index", locals:{watches:result})
+    slim(:"/watches/index", locals:{watches:result, admin:@admin_check})
 end
 
 get('/watches/favourites') do
@@ -90,14 +97,15 @@ post('/watches/new') do
     content = params[:content]
     movement = params[:movement]
     watch_id = params[:watch_id].to_i
-    register_new_watch(watch_name, brand_name, content, movement, watch_id)
+    user_id = session[:id]
+    register_new_watch(watch_name, brand_name, content, movement, watch_id, user_id)
     redirect('/watches/show')
 end
 
 post('/watches/:id/delete') do
     id = params[:id].to_i
     delete_a_watch(id)
-    redirect('/watche/show')
+    redirect('/watches/show')
 end  
 
 post('/watches/:id/update') do
@@ -110,8 +118,8 @@ end
 
 get('/watches/:id/edit') do
     id = params[:id].to_i
-    edit_a_watch(id)
-    redirect('/watches/:id/update')
+    result = edit_a_watch(id)    
+    slim(:"/watches/edit", locals:{result:result})
 end
 
 get('/watches/:id/like') do
