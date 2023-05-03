@@ -1,11 +1,12 @@
 h1 All Watches
 
-
 ol
   - watches.each do |watch|
     li 
       a href="/watches/#{watch['watch_id']}" #{watch["watch_name"]}
-      a href="/watches/#{watch['watch_id']}/edit" Edit
+      -if @user_id == watch['user_id'] || @user_id == 1
+        a href="/watches/#{watch['watch_id']}/edit" Edit
+
       a href="/watches/#{watch['watch_id']}/like" onclick="showPopup()" Like
       a href="/watches/#{watch['watch_id']}/dislike" Dislike
       - if admin 

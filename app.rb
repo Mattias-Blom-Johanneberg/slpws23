@@ -7,6 +7,10 @@ require_relative './model.rb'
 
 enable :sessions
 
+before('/*') do
+    @user_id = session[:id]
+end
+
 before('/watches/*') do
     if session[:id] == nil
         session[:error] = "Du behöver logga in för att se denna sidan"
@@ -77,7 +81,7 @@ post('/users/new') do
 end
 
 get('/watches/show') do
-    result = show_watches()
+    result = show_all_watches()
     slim(:"/watches/index", locals:{watches:result, admin:@admin_check})
 end
 
@@ -151,6 +155,6 @@ end
 
 get('/watches/:id') do
     id = params[:id].to_i
-    result = show_a_watch(id)
+    result = show_specific_watch(id)
     slim(:"/watches/show", locals:{result:result})
-  end
+end

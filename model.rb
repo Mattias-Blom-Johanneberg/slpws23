@@ -52,16 +52,16 @@ def register_user(username, password, password_confirm)
     end
 end
 
-def show_watches()
+def show_all_watches()
     db = SQLite3::Database.new('db/watch_database.db')
     db.results_as_hash = true
-    result = db.execute("SELECT watch_id, watch_name FROM watches")
+    result = db.execute("SELECT watch_id, watch_name, user_id FROM watches")
 end
 
 def show_favourite_watches(user_id)
     db = SQLite3::Database.new('db/watch_database.db')
     db.results_as_hash = true
-    result = db.execute("SELECT * FROM user_favourites JOIN watches ON user_favourites.watch_id = watches.watch_id WHERE user_id = ?", user_id) 
+    result = db.execute("SELECT * FROM user_favourites JOIN watches ON user_favourites.watch_id = watches.watch_id WHERE user_favourites.user_id = ?", user_id)
 end
 
 def register_new_watch(watch_name, brand_name, content, movement, watch_id, user_id)
@@ -129,13 +129,11 @@ def dislike_a_watch(watch_id, user_id)
     db.execute("DELETE FROM user_favourites WHERE user_id = ? AND watch_id = ?", user_id, watch_id)
 end
 
-# def dislike_a_watch_from_favourites()
-
-# end
-
-def show_a_watch(id)
+def show_specific_watch(id)
     db = SQLite3::Database.new("db/watch_database.db")
     db.results_as_hash = true
     result = db.execute("SELECT * FROM watches WHERE watch_id = ?", id).first
-    owner = db.execute("SELECT username WHERE user_id = ?", result['user_id'])
+    owner = db.execute("SELECT username from users WHERE user_id = ?", result['user_id'])
+    result.store("username", owner[0][0])
+    return result
 end
