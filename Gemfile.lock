@@ -23,6 +23,7 @@ GEM
     yard (0.9.34)
 
 PLATFORMS
+  x64-mingw-ucrt
   x64-mingw32
 
 DEPENDENCIES

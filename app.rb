@@ -56,8 +56,8 @@ end
 
 # Attempts login and updates the session 
 #
-# @param [String] username, The username
-# @param [String] password, The password
+# @param [String] username The username
+# @param [String] password The password
 #
 # @see Model#login
 post('/login') do
@@ -81,9 +81,9 @@ end
 
 # Attempts login/register and updates the session
 #
-# @param [String] username, The username
-# @param [String] password, The password
-# @param [String] password_confirm, The repeated password
+# @param [String] username The username
+# @param [String] password The password
+# @param [String] password_confirm The repeated password
 #
 # @see Model#register_user
 post('/users/new') do
@@ -123,7 +123,7 @@ end
 
 # Displays a single watch
 #
-# @param [Integer] :id, The ID of the watch
+# @param [Integer] :id The ID of the watch
 #
 # @see Model#get_watch
 get('/watches/:id') do
@@ -134,11 +134,11 @@ end
 
 # Creates a new watch and redirects to '/watches/show'
 #
-# @param [String] watch_name, The name of the watch
-# @param [String] brand_name, The name of the brand
-# @param [String] content, The content of the watch
-# @param [String] movement, The movement of the watch
-# @param [Integer] :watch_id, The ID of the watch
+# @param [String] watch_name The name of the watch
+# @param [String] brand_name The name of the brand
+# @param [String] content The content of the watch
+# @param [String] movement The movement of the watch
+# @param [Integer] :watch_id The ID of the watch
 #
 # @see Model#create_new_watch
 post('/watches/new') do
@@ -154,7 +154,7 @@ end
 
 # Deletes an existing watch and redirects to '/watches/show'
 #
-# @param [Integer] :id, The ID of the user
+# @param [Integer] :id The ID of the user
 #
 # @see Model#delete_watch
 post('/watches/:id/delete') do
@@ -165,9 +165,9 @@ end
 
 # Updates an existing watch and redirects to '/watches/show'
 #
-# @param [Integer] :id, The ID of the watch
-# @param [String] watch_name, The name of the watch
-# @param [String] :brand_id, The ID of the brand
+# @param [Integer] :id The ID of the watch
+# @param [String] watch_name The name of the watch
+# @param [String] :brand_id The ID of the brand
 #
 # @see Model#update_watch
 post('/watches/:id/update') do
@@ -180,7 +180,7 @@ end
 
 # Displays an edit form
 #
-# @param [Integer] :id, The ID of the watch
+# @param [Integer] :id The ID of the watch
 #
 # @see Model#edit_watch
 get('/watches/:id/edit') do
@@ -192,7 +192,7 @@ end
 # Attempts to adds watch to users favourites and redirects to '/watches/favourites'
 #
 #
-# @param [Integer] :id, The ID of the watch
+# @param [Integer] :id The ID of the watch
 #
 # @see Model#like_watch
 post('/watches/:id/like') do
@@ -208,7 +208,7 @@ end
 
 # Deletes watch from users favourites and redirects to '/watches/favourites'
 #
-# @param [Integer] :id, The ID of the watch
+# @param [Integer] :id The ID of the watch
 #
 # @see Model#dislike_watch
 post('/watches/:id/dislike') do
