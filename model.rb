@@ -30,16 +30,17 @@ module Model
     # Shows landing page 
     #
     # @param [Integer] user_id The ID of the user
-    def start(user_id)
+    def start()
         db = SQLite3::Database.new('db/watch_database.db')
         db.results_as_hash = true
         
-        if user_id == nil
-            slim(:start)
-        else
+        user_id = session[:id]
+
+        if user_id != nil
             result = db.execute("SELECT username FROM users WHERE user_id = ?", user_id)
-            slim(:user_start, locals:{user:result})
         end
+        
+        return user_id, result
     end
 
     # Attempts to login
@@ -62,8 +63,7 @@ module Model
         user_id = result["user_id"]
 
         if BCrypt::Password.new(pwdigest) == password
-            session[:id] = user_id
-            return true
+            return true, user_id
         else
             return false
         end
@@ -151,6 +151,7 @@ module Model
     def delete_watch(id)
         db = SQLite3::Database.new("db/watch_database.db")
         db.execute("DELETE FROM watches WHERE watch_id = ?", id)
+        db.execute("DELETE FROM user_favourites WHERE watch_id = ?", id)
     end
 
     # Updates a watch
@@ -254,4 +255,11 @@ module Model
         return result
     end
 
+    def get_watch_user(id)
+        db = SQLite3::Database.new('db/watch_database.db')
+        result = db.execute("SELECT user_id FROM watches WHERE watch_id = ?", id)
+        return result
+    end
+
 end
+

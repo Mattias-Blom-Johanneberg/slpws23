@@ -11,6 +11,10 @@ include Model
 
 before('/*') do
     @user_id = session[:id]
+
+    # if session[:error] != nil
+    #     redirect('/error')
+    # end
 end
 
 before('/watches/*') do
@@ -28,8 +32,12 @@ end
 #
 # @see Model#start
 get('/') do
-    user_id = session[:id]
-    start(user_id)
+    user_id, result = start()
+    if user_id == nil
+        slim(:start)
+    else
+        slim(:user_start, locals:{user:result})
+    end 
 end 
 
 # Displays a login form and a link to register account or, if user is logged in, redirects to '/logout'
@@ -64,8 +72,10 @@ post('/login') do
     cooldown()
     username = params[:username]
     password = params[:password]
-    
-    if login(username, password)
+    attempt, user_id = login(username, password)
+
+    if attempt
+        session[:id] = user_id
         redirect('/')
     else
         "Fel lösenord!"
@@ -159,6 +169,10 @@ end
 # @see Model#delete_watch
 post('/watches/:id/delete') do
     id = params[:id].to_i
+    if get_watch_user(id)[0][0] != session[:id]
+        session[:error] = "You dont have access to this watch!"
+        redirect('/error')
+    end
     delete_watch(id)
     redirect('/watches/show')
 end  
@@ -172,6 +186,10 @@ end
 # @see Model#update_watch
 post('/watches/:id/update') do
     id = params[:id].to_i
+    if get_watch_user(id)[0][0] != session[:id]
+        session[:error] = "You dont have access to this watch!"
+        redirect('/error')
+    end
     watch_name = params[:watch_name]
     brand_id = params[:brand_id].to_i
     update_watch(id, watch_name, brand_id)
@@ -185,6 +203,10 @@ end
 # @see Model#edit_watch
 get('/watches/:id/edit') do
     id = params[:id].to_i
+    if get_watch_user(id)[0][0] != session[:id]
+        session[:error] = "You dont have access to this watch"
+        redirect('/error')
+    end
     result = edit_watch(id)    
     slim(:"/watches/edit", locals:{result:result})
 end
@@ -198,6 +220,7 @@ end
 post('/watches/:id/like') do
     watch_id = params[:id].to_i
     user_id = session[:id]
+    
 
     if like_watch(watch_id, user_id)
         "Du har redan gillat denna klockan!"

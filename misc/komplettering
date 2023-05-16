@@ -3,7 +3,7 @@ Komplettering:
 # Lägg ttill admin, säkra upp routes (tex mha beforeblock). 
 # Fixa edit-funktionalitet klockor. Validering av iputdata. 
 För högre: 
-Städa upp MVC (sessioner, redirects, db-kod i både model och contrtoller nu) och restful-namngivning. 
+# Städa upp MVC (sessioner, redirects, db-kod i både model och contrtoller nu) och restful-namngivning. 
 # Lägg ttill resurs som endast änvändare äger och lått endast användaren cruda sin resurs. 
 # Säkra upp routes så att användare äger sina routes (kan endast cruda sina egna resurser). 
 # Cool  down. 
